@@ -603,7 +603,7 @@ main(int argc, char **argv)
 	/*
 	 * establish error longjump point with initial conditions
 	 */
-	if (setjmp(calc_scanerr_jmpbuf) == 0) {
+	if (sigsetjmp(calc_scanerr_jmpbuf, 22) == 0) {
 
 		/*
 		 * reset/initialize the computing environment
@@ -784,7 +784,6 @@ main(int argc, char **argv)
 S_FUNC void
 intint(int UNUSED(arg))
 {
-	(void) signal(SIGINT, intint);
 	if (inputwait || (++abortlevel >= ABORT_NOW)) {
 		calc_interrupt("\nABORT");
 		/*NOTREACHED*/
@@ -815,7 +814,7 @@ calc_interrupt(char *fmt, ...)
 	fprintf(stderr, "%s\n\n", calc_err_msg);
 	funcname = NULL;
 	if (calc_use_scanerr_jmpbuf != 0) {
-		longjmp(calc_scanerr_jmpbuf, 22);
+		siglongjmp(calc_scanerr_jmpbuf, 22);
 	} else {
 		fprintf(stderr, "It is too early provide a command line prompt "
 				"so we must simply exit.  Sorry!\n");
